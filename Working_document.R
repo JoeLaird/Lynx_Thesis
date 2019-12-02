@@ -13,7 +13,10 @@
 library(tm) #Text mining package used to create and manipulate corpora
 library(tidytext) #Text mining package used to tidy data 
 library(stringr) #Used to clean and manipulate strings
-library(dplyr)
+library(dplyr) #Used for the pipeline function
+library(factoextra) #Used to plot PCA biplot
+library(ggfortify)
+library(ggplot2)
 
 #Functions Loaded
 source("Code/Functions.R")
@@ -45,48 +48,34 @@ lapply(myfiles, function(i) system(paste('C:/Users/user/PDFtoTEXT/pdftotext.exe'
 Doc_corp <- VCorpus(DirSource(dest, pattern = "txt"))
 tidy_Doc <- tidy(Doc_corp)
 
-tweet_corp <- VCorpus(DirSource(dest2, pattern = "txt"))
-tidy_tweet <- tidy(tweet_corp)
-
 
 #cleaning text
 #Uses clean text function from Functions.R
 tidy_Doc$text <- trim_fun(tidy_Doc)
 
 
-
-rp_values <- read.table("datafiles/csvs/rp_values.txt", header = T)
-rp.pca <- prcomp(rp_values[,c(2:11)], center = T, scale. = T)
-summary(rp.pca)
-install.packages("ggfortify")
-library(ggfortify)
-library(ggplot2)
-autoplot(rp.pca, loadings = T, loadings.label = T)
-
-tw_data <- read.table("datafiles/csvs/tw_data_adj.txt", header = T)
-tw_data[,3] <- as.numeric(tw_data[,3])
-tw.pca <- prcomp(tw_data[,c(2:71)], center = T, scale. = T)
-summary(tw.pca)
-autoplot(tw.pca)
-
-b <- merge(tw_data, rp_values)
-b.pca <- princomp(b[,c(2:81)], center = T, scale. = T)
-summary(b.pca)
-autoplot(b.pca)
-
+#Principle Component Analysis
+#uses sumarised data compiled from pca.R files
 merged_t <- read.table("Datafiles/csvs/transv_summarised.txt", header = T)
 mer.pca <- prcomp(merged_t[,c(3:7)], center = T, scale. = T)
-summary(mer.pca)
 #prcomp()       princomp()          Description
 # sdev          sdev                the standard deviations of the principal components
 # rotation      loadings            the matrix of variable loadings (columns are eigenvectors)
 # center        center              the variable means (means that were substracted)
 # scale         scale               the variable standard deviations (the scaling applied to each variable )
 # x             scores              The coordinates of the individuals (observations) on the principal components
+
+summary(mer.pca)
+# Importance of components:
+#                           PC1    PC2    PC3    PC4    PC5
+# Standard deviation     1.2216 1.1044 0.9490 0.8709 0.7930
+# Proportion of Variance 0.2985 0.2440 0.1801 0.1517 0.1258
+# Cumulative Proportion  0.2985 0.5424 0.7225 0.8742 1.0000
+
 autoplot(mer.pca, loadings = T, loadings.label = T)
 
-#install.packages("factoextra")
-library("factoextra")
+
+
 fviz_pca_biplot(mer.pca, geom = "point", pointshape = 21, 
              pointsize = 2, 
              fill.ind = merged_t$Document_Type, 
@@ -103,7 +92,7 @@ fviz_pca_biplot(mer.pca, geom = "point", pointshape = 21,
 write.csv(mer.pca[["x"]], "cord.csv")
 
 cord <- read.csv("cord.csv", header = T)
-cord.lm <- lm(cord$Document_Type=="Tweet" ~ cord$Document_Type=="Report")
+cord.lm <- lm(cord$PC1 ~ cord$PC2 * cord$Document_Type)
 summary.aov(cord.lm)
 
 

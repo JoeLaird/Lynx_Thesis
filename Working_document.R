@@ -7,7 +7,7 @@
 # Cleaning text files
 # Analysing 
 
-
+setwd("c:/Users/user/Documents/Uni/Honours_Project/Text-Analysis/")
 
 #Packages Used
 library(tm) #Text mining package used to create and manipulate corpora
@@ -56,7 +56,7 @@ tidy_Doc$text <- trim_fun(tidy_Doc)
 
 #Principle Component Analysis
 #uses sumarised data compiled from pca.R files
-merged_t <- read.table("Datafiles/csvs/transv_summarised.txt", header = T)
+merged_t <- read.table("Datafiles/csvs/transv_summarised2.txt", header = T)
 mer.pca <- prcomp(merged_t[,c(3:7)], center = T, scale. = T)
 #prcomp()       princomp()          Description
 # sdev          sdev                the standard deviations of the principal components
@@ -89,10 +89,11 @@ fviz_pca_biplot(mer.pca, geom = "point", pointshape = 21,
   ggtitle("PCA-plot of Document Language Use") +
   theme(plot.title = element_text(hjust = 0.5))
 
-write.csv(mer.pca[["x"]], "cord.csv")
+write.csv(mer.pca[["x"]], "cord1.csv")
 
-cord <- read.csv("cord.csv", header = T)
-cord.lm <- lm(cord$PC1 ~ cord$PC2 * cord$Document_Type)
+cord <- read.csv("cord1.csv", header = T)
+cord.lm <- lm(cord$PC1[cord$Document_Type=="Report"] ~ cord$PC1[cord$Document_Type=="Tweet"])
+cord.lm <- lm(cord$PC1 ~ cord$Document_Type)
 summary.aov(cord.lm)
 
 

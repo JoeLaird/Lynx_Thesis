@@ -1,5 +1,8 @@
 ##web sources
 
+#librarys
+library(rvest)
+
 source("Code/Functions.R")
 
 # collected 2019_11_11

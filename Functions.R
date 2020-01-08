@@ -8,13 +8,12 @@ library(stringr)
 
 trim_fun <- function(a){
   a$text <- tolower(a$text)
-  loc1 <- str_locate(a$text, pattern = "abstract")
-  loc2 <- str_locate(a$text, pattern = "\nreferences|literature cited")
-  a$text <- substring(a$text, loc1[,1], loc2[,2])
-  a$text <- gsub("\\d", " ", a$text)
+  loc1 <- str_locate(a$text, pattern = "abstract") #Identifies location of "abstract" within a report
+  loc2 <- str_locate(a$text, pattern = "\nreferences|literature cited") #Identifies location of either "\nreferences" or "literature cited"
+  a$text <- substring(a$text, loc1[,1], loc2[,2]) #uses the locations to extraxt text inbetween 
+  a$text <- gsub("\\d", " ", a$text) #removes digits
   a$text <- gsub("\n", " ", a$text)
   a$text <- gsub("\f", " ", a$text)
-  #a$id <- gsub(".txt", " ", a$id)
 }
 
 
